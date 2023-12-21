@@ -4,12 +4,12 @@
 #include <memory>
 
 PreparedStatement foobar(const std::string& fileName, const std::string& sql) {
-    return Database{fileName, Database::Mode::read}.prepare(sql);
+    return Database{fileName, Database::Mode::readOnly}.prepare(sql);
 }
 
-int main(int argc, const char** argv)
-{
-    Database db{"test.db", Database::Mode::write};
+int main(int argc, const char** argv) {
+
+    Database db{"test.db", Database::Mode::create};
     db.prepare("CREATE TABLE foo (a,b,c)").execute();
     const auto stmt = db.prepare("INSERT INTO foo VALUES (?,?,?)");
     for (auto i = 0; i < 10; i++) {
@@ -23,9 +23,9 @@ int main(int argc, const char** argv)
     std::cout << "--------\n";
 
     foobar("test.db", "SELECT * FROM foo").execute([](const PreparedStatement::Row& row) {
-            std::cout << row.get<int>(0) << ',';
-            std::cout << row.get<double>(1) << ',';
-            std::cout << row.get<std::string>(2) << '\n';
+        std::cout << row.get<int>(0) << ',';
+        std::cout << row.get<double>(1) << ',';
+        std::cout << row.get<std::string>(2) << '\n';
     });
 
     return 0;

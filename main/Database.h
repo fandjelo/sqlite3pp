@@ -1,12 +1,12 @@
 #pragma once
 
+#include "DatabaseError.h"
+
 #include <sqlite3.h>
 
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "DatabaseError.h"
 
 class PreparedStatement {
 public:

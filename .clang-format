@@ -101,17 +101,21 @@ ForEachMacros:
   - BOOST_FOREACH
 IfMacros:
   - KJ_IF_MAYBE
-IncludeBlocks:   Preserve
+IncludeBlocks:   Regroup
 IncludeCategories:
-  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
+  - Regex:           '^(<(gtest|gmock|isl|json)/)'
+    Priority:        4
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '<.*\..*>'
     Priority:        2
     SortPriority:    0
     CaseSensitive:   false
-  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
+  - Regex:           '<.*>'
     Priority:        3
     SortPriority:    0
     CaseSensitive:   false
-  - Regex:           '.*'
+  - Regex:           '".*"'
     Priority:        1
     SortPriority:    0
     CaseSensitive:   false

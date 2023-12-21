@@ -1,9 +1,12 @@
-#include <Database.h>
+#include <SQLite3pp/Database.h>
+#include <SQLite3pp/Error.h>
 
 #include <fstream>
 #include <memory>
 
 #include <gtest/gtest.h>
+
+using namespace SQLite3pp;
 
 struct DatabaseTest : public ::testing::Test {
 
@@ -48,7 +51,7 @@ TEST_F(DatabaseTest, BindParams) {
         EXPECT_EQ("Hello World", row.get<std::string>(1));
         EXPECT_EQ(3.14, row.get<double>(2));
         EXPECT_THROW(row.get<int>(1), TypeMismatchError);
-        EXPECT_THROW(row.get<int>(3), DatabaseError);
+        EXPECT_THROW(row.get<int>(3), Error);
     });
 }
 
@@ -101,7 +104,7 @@ TEST_F(DatabaseTest, ExtractSet) {
 }
 
 TEST_F(DatabaseTest, TransactionConflict) {
-    ASSERT_THROW(db->transaction([](const auto& db) { db.execute("BEGIN"); }), DatabaseError);
+    ASSERT_THROW(db->transaction([](const auto& db) { db.execute("BEGIN"); }), Error);
 }
 
 TEST_F(DatabaseTest, TransactionRollback) {
@@ -112,7 +115,8 @@ TEST_F(DatabaseTest, TransactionRollback) {
         ASSERT_NO_THROW(db.execute("INSERT INTO foo VALUES (2,'two')"));
         ASSERT_NO_THROW(db.execute("INSERT INTO foo VALUES (3,'three')"));
         throw 42;
-    }), int);
+    }),
+                 int);
     ASSERT_EQ(0, db->execute<int>("SELECT count(*) FROM foo"));
 }
 

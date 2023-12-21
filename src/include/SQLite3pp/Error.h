@@ -3,16 +3,17 @@
 #include <stdexcept>
 #include <string>
 
-class DatabaseError : public std::runtime_error {
+namespace SQLite3pp {
+
+class Error : public std::runtime_error {
 public:
-    DatabaseError(const std::string& what) noexcept : std::runtime_error(what) {}
+    Error(const std::string& what) noexcept : std::runtime_error(what) {}
 };
 
-class OpenDatabaseError : public DatabaseError {
+class OpenDatabaseError : public Error {
 public:
     OpenDatabaseError(std::string fileName, std::string reason)
-    : DatabaseError{"Failed to open database: " + fileName + ": " + reason}
-    , m_fileName{std::move(fileName)} {}
+    : Error{"Failed to open database: " + fileName + ": " + reason}, m_fileName{std::move(fileName)} {}
 
     const std::string& getFileName() const { return m_fileName; }
 
@@ -23,10 +24,10 @@ private:
     std::string m_reason;
 };
 
-class PrepareStatementError : public DatabaseError {
+class PrepareStatementError : public Error {
 public:
     PrepareStatementError(const std::string& what, std::string sql)
-    : DatabaseError{"Failed to prepare statement: " + what}, m_sql{std::move(sql)} {}
+    : Error{"Failed to prepare statement: " + what}, m_sql{std::move(sql)} {}
 
     const std::string& getSql() const { return m_sql; }
 
@@ -34,11 +35,10 @@ private:
     std::string m_sql;
 };
 
-class BindParameterError : public DatabaseError {
+class BindParameterError : public Error {
 public:
     BindParameterError(const std::string& what, size_t index)
-    : DatabaseError{"Failed to bind paramter " + std::to_string(index) + ": " + what}
-    , m_index{index} {}
+    : Error{"Failed to bind paramter " + std::to_string(index) + ": " + what}, m_index{index} {}
 
     size_t getIndex() const { return m_index; }
 
@@ -46,10 +46,10 @@ private:
     size_t m_index;
 };
 
-class TypeMismatchError : public DatabaseError {
+class TypeMismatchError : public Error {
 public:
     TypeMismatchError(size_t index)
-    : DatabaseError("Result type mismatch in column " + std::to_string(index)), m_index{index} {}
+    : Error{"Result type mismatch in column " + std::to_string(index)}, m_index{index} {}
 
     size_t getIndex() const { return m_index; }
 
@@ -57,3 +57,4 @@ private:
     size_t m_index;
 };
 
+} // namespace SQLite3pp

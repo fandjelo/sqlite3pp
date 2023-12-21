@@ -1,10 +1,10 @@
 aux_source_directory(. sources)
-add_executable(database_test ${sources})
-target_link_libraries(database_test PRIVATE database)
+add_executable(SQLite3ppTest ${sources})
+target_link_libraries(SQLite3ppTest PRIVATE SQLite3pp)
 
 find_package(GTest REQUIRED CONFIG)
-target_link_libraries(database_test PRIVATE GTest::gtest GTest::gtest_main)
+target_link_libraries(SQLite3ppTest PRIVATE GTest::gtest GTest::gtest_main)
 
 include(GoogleTest)
-gtest_discover_tests(database_test DISCOVERY_MODE PRE_TEST)
+gtest_discover_tests(SQLite3ppTest DISCOVERY_MODE PRE_TEST)
 

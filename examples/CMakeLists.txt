@@ -1,3 +1,3 @@
-add_executable(demo main.cpp)
-target_link_libraries(demo PRIVATE database)
+add_executable(example main.cpp)
+target_link_libraries(example PRIVATE SQLite3pp)
 

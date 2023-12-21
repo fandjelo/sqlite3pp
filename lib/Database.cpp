@@ -61,26 +61,13 @@ void Statement::bind(size_t index, double value) const {
 }
 
 void Statement::bind(size_t index, const std::string& value) const {
-    auto* data = new char[value.size()];
-    std::copy(std::begin(value), std::end(value), data);
-    auto deleter = [](void* ptr) { delete[] static_cast<char*>(ptr); };
-    if (SQLITE_OK != sqlite3_bind_text(m_stmt.get(), index, data, value.size(), deleter)) {
+    if (SQLITE_OK != sqlite3_bind_text(m_stmt.get(), index, value.data(), value.size(), SQLITE_TRANSIENT)) {
         throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
     }
 }
 
 void Statement::bind(size_t index, const std::vector<char>& value) const {
-
-    const auto err = [this, index, &value]() {
-        if (value.size() > 0) {
-            auto* data = new char[value.size()];
-            auto deleter = [](void* ptr) { delete[] static_cast<char*>(ptr); };
-            return sqlite3_bind_blob(m_stmt.get(), index, data, value.size(), deleter);
-        }
-        return sqlite3_bind_null(m_stmt.get(), index);
-    }();
-
-    if (SQLITE_OK != err) {
+    if (SQLITE_OK != sqlite3_bind_blob(m_stmt.get(), index, value.data(), value.size(), SQLITE_TRANSIENT)) {
         throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
     }
 }

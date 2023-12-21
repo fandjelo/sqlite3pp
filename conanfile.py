@@ -11,6 +11,9 @@ class Pkg(ConanFile):
     requires = [ "sqlite3/[>=3.8]" ]
     test_requires = [ "gtest/[>=1.12]" ]
 
+    def package_info(self):
+        self.cpp_info.libs = ["database"]
+
     def layout(self):
         cmake_layout(self)
 

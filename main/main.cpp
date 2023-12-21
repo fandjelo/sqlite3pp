@@ -17,13 +17,13 @@ int main(int argc, const char** argv) {
 
     std::cout << "--------\n";
 
-    db.prepare("SELECT * FROM foo").execute([](const Row& row) {
+    db.execute("SELECT * FROM foo", [](const Row& row) {
         std::cout << row.get<int>(0) << ',';
         std::cout << row.get<double>(1) << ',';
         std::cout << row.get<std::string>(2) << '\n';
     });
 
-    const auto results = db.prepare("SELECT a,c FROM foo").execute<std::vector<std::pair<int, std::string>>>();
+    const auto results = db.execute<std::vector<std::pair<int, std::string>>>("SELECT a,c FROM foo");
     for (const auto& result : results) {
         std::cout << result.first << ", " << result.second << '\n';
     }

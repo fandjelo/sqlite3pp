@@ -195,6 +195,20 @@ public:
 
     PreparedStatement prepare(const std::string& sql) const { return PreparedStatement{m_db, sql}; }
 
+    void execute(const std::string& sql) const {
+        prepare(sql).execute();
+    }
+
+    template <typename T>
+    void execute(const std::string& sql, T&& action) const {
+        prepare(sql).execute(std::forward<T>(action));
+    }
+
+    template <typename T>
+    T execute(const std::string& sql) const {
+        return prepare(sql).execute<T>();
+    }
+
 private:
     std::shared_ptr<sqlite3> m_db;
 };

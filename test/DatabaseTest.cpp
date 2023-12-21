@@ -9,7 +9,7 @@ struct DatabaseTest : public ::testing::Test {
 
     std::unique_ptr<Database> db;
 
-    void SetUp() override { db = std::make_unique<Database>(":memory:", Database::Mode::write); }
+    void SetUp() override { db = std::make_unique<Database>(":memory:"); }
 
     void TearDown() override { db.reset(); }
 };
@@ -18,9 +18,12 @@ TEST_F(DatabaseTest, OpenCreateDatabase) {
 
     static const auto* dbFile = "test.db";
     std::remove(dbFile);
-    ASSERT_THROW(Database(dbFile, Database::Mode::read), OpenDatabaseError);
-    ASSERT_NO_THROW(Database(dbFile, Database::Mode::write));
-    ASSERT_NO_THROW(Database(dbFile, Database::Mode::read));
+    auto uri = [](const auto& mode) { return std::string{"file:"} + dbFile + "?mode=" + mode; };
+    ASSERT_THROW(Database(uri("ro")), OpenDatabaseError);
+    ASSERT_THROW(Database(uri("rw")), OpenDatabaseError);
+    ASSERT_NO_THROW(Database(uri("rwc")));
+    ASSERT_NO_THROW(Database(uri("ro")));
+    ASSERT_NO_THROW(Database(uri("rw")));
 }
 
 TEST_F(DatabaseTest, SimpleExecute) {

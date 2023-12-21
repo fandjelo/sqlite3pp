@@ -87,9 +87,7 @@ private:
 
 class Database {
 public:
-    enum class Mode { read, write };
-
-    Database(const std::string& fileName, Mode mode);
+    Database(const std::string& uri);
 
     Statement prepare(const std::string& sql) const { return Statement{m_db, sql}; }
 

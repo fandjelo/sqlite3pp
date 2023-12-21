@@ -88,14 +88,13 @@ void Statement::execute(std::function<void(const Row&)> handler) const {
     }
 }
 
-Database::Database(const std::string& fileName, Mode mode) {
-
-    const auto flag = (mode == Mode::read) ? SQLITE_OPEN_READONLY : SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE;
+Database::Database(const std::string& uri) {
 
     sqlite3* db{nullptr};
-    const auto err = sqlite3_open_v2(fileName.c_str(), &db, flag, nullptr);
+    const auto flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_URI;
+    const auto err = sqlite3_open_v2(uri.c_str(), &db, flags, nullptr);
     m_db = std::shared_ptr<sqlite3>{db, [](auto* db) { sqlite3_close_v2(db); }};
     if (SQLITE_OK != err) {
-        throw OpenDatabaseError{fileName, sqlite3_errmsg(db)};
+        throw OpenDatabaseError{uri, sqlite3_errmsg(db)};
     }
 }

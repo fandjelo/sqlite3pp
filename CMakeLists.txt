@@ -4,6 +4,6 @@ project(database)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
-add_subdirectory(main)
+add_subdirectory(lib)
 add_subdirectory(test)
-
+add_subdirectory(examples)

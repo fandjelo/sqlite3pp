@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DatabaseError.h"
+#include "ScopeGuard.h"
 
 #include <sqlite3.h>
 
@@ -73,7 +74,6 @@ private:
 
 class PreparedStatement {
 public:
-
     PreparedStatement(std::shared_ptr<sqlite3> db, const std::string& sql) : m_db{std::move(db)} {
         sqlite3_stmt* stmt{nullptr};
         const auto err = sqlite3_prepare_v2(m_db.get(), sql.c_str(), sql.size(), &stmt, nullptr);
@@ -188,9 +188,7 @@ public:
         const auto err = sqlite3_open_v2(fileName.c_str(), &db, flag, nullptr);
         m_db = std::shared_ptr<sqlite3>{db, [](auto* db) { sqlite3_close_v2(db); }};
         if (SQLITE_OK != err) {
-            std::string errmsg = sqlite3_errmsg(db);
-            sqlite3_close_v2(db);
-            throw OpenDatabaseError{fileName, std::move(errmsg)};
+            throw OpenDatabaseError{fileName, sqlite3_errmsg(db)};
         }
     }
 
@@ -206,6 +204,15 @@ public:
     template <typename T>
     T execute(const std::string& sql) const {
         return prepare(sql).execute<T>();
+    }
+
+    template <typename T>
+    void transaction(T&& actions) const {
+        auto guard = makeScopeGuard([this]() { execute("ROLLBACK"); });
+        execute("BEGIN");
+        actions(*this);
+        guard.released = true;
+        execute("COMMIT");
     }
 
 private:

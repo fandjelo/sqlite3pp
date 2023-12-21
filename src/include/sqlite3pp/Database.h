@@ -3,11 +3,8 @@
 #include "BaseDefs.h"
 #include "Statement.h"
 
-#include <map>
 #include <memory>
-#include <set>
 #include <string>
-#include <vector>
 
 namespace sqlite3pp {
 

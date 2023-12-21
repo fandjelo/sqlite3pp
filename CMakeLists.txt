@@ -4,8 +4,17 @@ project(database)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
-enable_testing()
+option(SQLITE3PP_WITH_TESTS "Build with tests" TRUE)
+option(SQLITE3PP_WITH_EXAMPLES "Build with examples" TRUE)
 
 add_subdirectory(src)
-add_subdirectory(test)
-add_subdirectory(examples)
+
+if(SQLITE3PP_WITH_EXAMPLES)
+  add_subdirectory(examples)
+endif()
+
+if(SQLITE3PP_WITH_TESTS)
+  enable_testing()
+  add_subdirectory(test)
+endif()
+

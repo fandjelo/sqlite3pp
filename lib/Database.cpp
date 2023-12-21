@@ -72,17 +72,14 @@ void Statement::bind(size_t index, const std::vector<char>& value) const {
     }
 }
 
-void Statement::execute(std::function<void(const Row&)> handler) const {
-    while (true) {
-        switch (sqlite3_step(m_stmt.get())) {
-        case SQLITE_DONE:
-            return;
-        case SQLITE_ROW:
-            handler(Row{m_stmt.get()});
-            break;
-        default:
-            throw DatabaseError("Failed in step");
-        }
+bool Statement::hasNext() const {
+    switch (sqlite3_step(m_stmt.get())) {
+    case SQLITE_DONE:
+        return false;
+    case SQLITE_ROW:
+        return true;
+    default:
+        throw DatabaseError("Failed in step");
     }
 }
 

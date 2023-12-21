@@ -2,7 +2,6 @@
 
 #include "DatabaseError.h"
 
-#include <functional>
 #include <map>
 #include <memory>
 #include <set>
@@ -46,7 +45,12 @@ public:
     void bind(size_t index, const std::string& value) const;
     void bind(size_t index, const std::vector<char>& value) const;
 
-    void execute(std::function<void(const Row&)> handler) const;
+    template <typename Handler>
+    void execute(Handler&& handler) const {
+        while (hasNext()) {
+            handler(Row{m_stmt.get()});
+        }
+    }
 
     void execute() const {
         execute([](const auto&) {});
@@ -82,6 +86,8 @@ private:
 
     std::shared_ptr<sqlite3> m_db;
     std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> m_stmt{nullptr, nullptr};
+
+    bool hasNext() const;
 };
 
 class Database {

@@ -188,16 +188,15 @@ public:
         const auto err = sqlite3_open_v2(fileName.c_str(), &db, flag, nullptr);
         m_db = std::shared_ptr<sqlite3>{db, [](auto* db) { sqlite3_close_v2(db); }};
         if (SQLITE_OK != err) {
+            std::string errmsg = sqlite3_errmsg(db);
             sqlite3_close_v2(db);
-            throw OpenDatabaseError{fileName};
+            throw OpenDatabaseError{fileName, std::move(errmsg)};
         }
     }
 
     PreparedStatement prepare(const std::string& sql) const { return PreparedStatement{m_db, sql}; }
 
-    void execute(const std::string& sql) const {
-        prepare(sql).execute();
-    }
+    void execute(const std::string& sql) const { prepare(sql).execute(); }
 
     template <typename T>
     void execute(const std::string& sql, T&& action) const {

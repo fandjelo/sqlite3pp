@@ -10,13 +10,17 @@ public:
 
 class OpenDatabaseError : public DatabaseError {
 public:
-    OpenDatabaseError(std::string fileName)
-    : DatabaseError{"Failed to open database: " + fileName}, m_fileName{std::move(fileName)} {}
+    OpenDatabaseError(std::string fileName, std::string reason)
+    : DatabaseError{"Failed to open database: " + fileName + ": " + reason}
+    , m_fileName{std::move(fileName)} {}
 
-    const std::string getFileName() const { return m_fileName; }
+    const std::string& getFileName() const { return m_fileName; }
+
+    const std::string& getReason() const { return m_reason; }
 
 private:
     std::string m_fileName;
+    std::string m_reason;
 };
 
 class PrepareStatementError : public DatabaseError {
@@ -33,7 +37,8 @@ private:
 class BindParameterError : public DatabaseError {
 public:
     BindParameterError(const std::string& what, size_t index)
-    : DatabaseError{"Failed to bind paramter " + std::to_string(index) + ": " + what}, m_index{index} {}
+    : DatabaseError{"Failed to bind paramter " + std::to_string(index) + ": " + what}
+    , m_index{index} {}
 
     size_t getIndex() const { return m_index; }
 

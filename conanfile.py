@@ -30,10 +30,10 @@ class sqlite3ppRecipe(ConanFile):
     # Other settings
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeToolchain", "CMakeDeps"
-    exports_sources = "CMakeLists.txt", "src/*", "test/*", "examples/*"
+    exports_sources = "CMakeLists.txt", "src/*"
 
     def requirements(self):
-        self.tool_requires("cmake/[>=3.18]")
+        #self.tool_requires("cmake/[>=3.18]")
         self.requires("sqlite3/[>=3.8]")
         if self.options.with_tests:
             self.test_requires("gtest/[>=1.12]")
@@ -50,8 +50,9 @@ class sqlite3ppRecipe(ConanFile):
         self.cpp_info.libs = ["sqlite3pp"]
 
     def build(self):
+        variables = { "SQLITE3PP_WITH_TESTS" : self.options.with_tests }
         cmake = CMake(self)
-        cmake.configure({ "SQLITE3PP_WITH_TESTS" : self.options.with_tests })
+        cmake.configure(variables)
         cmake.build()
         if self.options.with_tests and can_run(self):
             cmake.test()

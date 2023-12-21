@@ -1,18 +1,19 @@
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-aux_source_directory(${CMAKE_CURRENT_LIST_DIR} sqlite3ppSources)
-add_library(sqlite3pp ${sqlite3ppSources})
-target_include_directories(sqlite3pp PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
+add_subdirectory(api)
+add_subdirectory(impl)
 
-find_package(SQLite3 REQUIRED)
-target_link_libraries(sqlite3pp SQLite::SQLite3)
+if(SQLITE3PP_WITH_EXAMPLES)
+  add_subdirectory(examples)
+endif()
+
+if(SQLITE3PP_WITH_TESTS)
+  add_subdirectory(test)
+endif()
 
 # -----------------------------------------------------------------------------
-# CMake packaging and installation
+# Generate config files
 # -----------------------------------------------------------------------------
 
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/sqlite3ppConfig.cmake.in
@@ -32,21 +33,12 @@ write_basic_package_version_file(
     COMPATIBILITY SameMajorVersion
 )
 
-install(
-    DIRECTORY include/sqlite3pp
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
+# -----------------------------------------------------------------------------
+# Packaging and installation
+# -----------------------------------------------------------------------------
 
 install(
-    FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/sqlite3ppConfig.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/sqlite3ppConfigVersion.cmake
-    DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}/cmake/sqlite3pp
-)
-
-install(
-    TARGETS sqlite3pp 
+    TARGETS sqlite3pp sqlite3pp_api
     EXPORT sqlite3ppTargets
 )
 
@@ -55,5 +47,13 @@ install(
     NAMESPACE sqlite3pp::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/sqlite3pp
     FILE sqlite3ppTargets.cmake
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/sqlite3ppConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/sqlite3ppConfigVersion.cmake
+    DESTINATION
+        ${CMAKE_INSTALL_LIBDIR}/cmake/sqlite3pp
 )
 

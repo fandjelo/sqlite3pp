@@ -1,4 +1,5 @@
 #include "Database.h"
+
 #include <sqlite3.h>
 
 size_t Row::get(size_t index, int& value) const {
@@ -37,29 +38,29 @@ size_t Row::get(size_t index, std::vector<char>& value) const {
     return index + 1;
 }
 
-PreparedStatement::PreparedStatement(std::shared_ptr<sqlite3> db, const std::string& sql) : m_db{std::move(db)} {
+Statement::Statement(std::shared_ptr<sqlite3> db, const std::string& sql) : m_db{std::move(db)} {
     sqlite3_stmt* stmt{nullptr};
     const auto err = sqlite3_prepare_v2(m_db.get(), sql.c_str(), sql.size(), &stmt, nullptr);
-    m_stmt = PointerType{stmt, [](auto* stmt) { sqlite3_finalize(stmt); }};
+    m_stmt = {stmt, [](auto* stmt) { sqlite3_finalize(stmt); }};
     if (SQLITE_OK != err) {
         const auto what = std::string{sqlite3_errmsg(m_db.get())};
         throw PrepareStatementError{what, sql};
     }
 }
 
-void PreparedStatement::bind(size_t index, int value) const {
+void Statement::bind(size_t index, int value) const {
     if (SQLITE_OK != sqlite3_bind_int(m_stmt.get(), index, value)) {
         throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
     }
 }
 
-void PreparedStatement::bind(size_t index, double value) const {
+void Statement::bind(size_t index, double value) const {
     if (SQLITE_OK != sqlite3_bind_double(m_stmt.get(), index, value)) {
         throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
     }
 }
 
-void PreparedStatement::bind(size_t index, const std::string& value) const {
+void Statement::bind(size_t index, const std::string& value) const {
     auto* data = new char[value.size()];
     std::copy(std::begin(value), std::end(value), data);
     auto deleter = [](void* ptr) { delete[] static_cast<char*>(ptr); };
@@ -68,7 +69,7 @@ void PreparedStatement::bind(size_t index, const std::string& value) const {
     }
 }
 
-void PreparedStatement::bind(size_t index, const std::vector<char>& value) const {
+void Statement::bind(size_t index, const std::vector<char>& value) const {
 
     const auto err = [this, index, &value]() {
         if (value.size() > 0) {
@@ -84,9 +85,9 @@ void PreparedStatement::bind(size_t index, const std::vector<char>& value) const
     }
 }
 
-void PreparedStatement::reset() const { sqlite3_reset(m_stmt.get()); }
+void Statement::reset() const { sqlite3_reset(m_stmt.get()); }
 
-void PreparedStatement::execute(std::function<void(const Row&)> handler) const {
+void Statement::execute(std::function<void(const Row&)> handler) const {
     while (true) {
         switch (sqlite3_step(m_stmt.get())) {
         case SQLITE_DONE:

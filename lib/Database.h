@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DatabaseError.h"
-#include "ScopeGuard.h"
 
 #include <map>
 #include <memory>
@@ -38,9 +37,9 @@ private:
     size_t get(size_t index, std::vector<char>& value) const;
 };
 
-class PreparedStatement {
+class Statement {
 public:
-    PreparedStatement(std::shared_ptr<sqlite3> db, const std::string& sql);
+    Statement(std::shared_ptr<sqlite3> db, const std::string& sql);
 
     void bind(size_t index, int value) const;
     void bind(size_t index, double value) const;
@@ -62,8 +61,6 @@ public:
     }
 
 private:
-    using PointerType = std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)>;
-
     template <typename T>
     static void get(const Row& row, T& result) {
         result = row.get<T>(0);
@@ -85,7 +82,7 @@ private:
     }
 
     std::shared_ptr<sqlite3> m_db;
-    PointerType m_stmt{nullptr, nullptr};
+    std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)> m_stmt{nullptr, nullptr};
 };
 
 class Database {
@@ -94,7 +91,7 @@ public:
 
     Database(const std::string& fileName, Mode mode);
 
-    PreparedStatement prepare(const std::string& sql) const { return PreparedStatement{m_db, sql}; }
+    Statement prepare(const std::string& sql) const { return Statement{m_db, sql}; }
 
     void execute(const std::string& sql) const { prepare(sql).execute(); }
 
@@ -110,11 +107,12 @@ public:
 
     template <typename T>
     void transaction(T&& actions) const {
-        auto guard = makeScopeGuard([this]() { execute("ROLLBACK"); });
         execute("BEGIN");
+        // Misuse unique_ptr as a scope guard to do rollback on error
+        using Guard = std::unique_ptr<const Database, void (*)(const Database*)>;
+        auto guard = Guard{this, [](const auto* db) { db->execute("ROLLBACK"); }};
         actions(*this);
-        guard.released = true;
-        execute("COMMIT");
+        guard.release()->execute("COMMIT");
     }
 
 private:

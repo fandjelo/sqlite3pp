@@ -3,6 +3,8 @@
 #include "DatabaseError.h"
 
 #include <sqlite3.h>
+
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -17,38 +19,26 @@ public:
         sqlite3_stmt* m_stmt;
     };
 
-    PreparedStatement(sqlite3* db, const std::string& sql) : m_db{db} {
-        if (SQLITE_OK != sqlite3_prepare_v2(m_db, sql.c_str(), sql.size(), &m_stmt, nullptr)) {
-            const auto what = std::string{sqlite3_errmsg(m_db)};
-            sqlite3_finalize(m_stmt);
+    PreparedStatement(std::shared_ptr<sqlite3> db, const std::string& sql) 
+    : m_db{std::move(db)} {
+        sqlite3_stmt* stmt{nullptr};
+        const auto err = sqlite3_prepare_v2(m_db.get(), sql.c_str(), sql.size(), &stmt, nullptr);
+        m_stmt = PointerType { stmt, [](auto* stmt) { sqlite3_finalize(stmt); }};
+        if (SQLITE_OK != err) {
+            const auto what = std::string{sqlite3_errmsg(m_db.get())};
             throw PrepareStatementError{what, sql};
         }
     }
 
-    PreparedStatement(PreparedStatement&& that) noexcept {
-        std::swap(m_stmt, that.m_stmt);
-    }
-
-    PreparedStatement& operator=(PreparedStatement&& that) noexcept {
-        std::swap(m_stmt, that.m_stmt);
-        return *this;
-    }
-
-    PreparedStatement(const PreparedStatement&) = delete;
-    PreparedStatement& operator=(const PreparedStatement&) = delete;
-    ~PreparedStatement() noexcept {
-        sqlite3_finalize(m_stmt);
-    }
-
     void bind(size_t index, int value) const {
-        if (SQLITE_OK != sqlite3_bind_int(m_stmt, index, value)) {
-            throw BindParameterError{sqlite3_errmsg(m_db), index};
+        if (SQLITE_OK != sqlite3_bind_int(m_stmt.get(), index, value)) {
+            throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
         }
     }
 
     void bind(size_t index, double value) const {
-        if (SQLITE_OK != sqlite3_bind_double(m_stmt, index, value)) {
-            throw BindParameterError{sqlite3_errmsg(m_db), index};
+        if (SQLITE_OK != sqlite3_bind_double(m_stmt.get(), index, value)) {
+            throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
         }
     }
 
@@ -56,8 +46,8 @@ public:
         auto* data = new char[value.size()];
         std::copy(std::begin(value), std::end(value), data);
         auto deleter = [](void* ptr) { delete [] static_cast<char*>(ptr); };
-        if (SQLITE_OK != sqlite3_bind_text(m_stmt, index, data, value.size(), deleter)) {
-            throw BindParameterError{sqlite3_errmsg(m_db), index};
+        if (SQLITE_OK != sqlite3_bind_text(m_stmt.get(), index, data, value.size(), deleter)) {
+            throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
         }
     }
 
@@ -66,19 +56,19 @@ public:
         if (value.size() > 0) {
             auto* data = new char[value.size()];
             auto deleter = [](void* ptr) { delete [] static_cast<char*>(ptr); };
-            err = sqlite3_bind_blob(m_stmt, index, data, value.size(), deleter);
+            err = sqlite3_bind_blob(m_stmt.get(), index, data, value.size(), deleter);
         }
         else {
-            err = sqlite3_bind_null(m_stmt, index);
+            err = sqlite3_bind_null(m_stmt.get(), index);
         }
 
         if (SQLITE_OK != err) {
-            throw BindParameterError{sqlite3_errmsg(m_db), index};
+            throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
         }
     }
 
     void reset() const {
-        sqlite3_reset(m_stmt);
+        sqlite3_reset(m_stmt.get());
     }
 
     void execute() const {
@@ -88,11 +78,11 @@ public:
     template <typename T>
     void execute(T&& handler) const {
         while(true) {
-            switch(sqlite3_step(m_stmt)) {
+            switch(sqlite3_step(m_stmt.get())) {
                 case SQLITE_DONE:
                     return;
                 case SQLITE_ROW:
-                    handler(Row{m_stmt});
+                    handler(Row{m_stmt.get()});
                     break;
                 default:
                     throw DatabaseError("Failed in step");
@@ -101,8 +91,10 @@ public:
     }
 
 private:
-    sqlite3* m_db{nullptr};
-    sqlite3_stmt* m_stmt{nullptr};
+    using PointerType = std::unique_ptr<sqlite3_stmt, void(*)(sqlite3_stmt*)>;
+
+    std::shared_ptr<sqlite3> m_db;
+    PointerType m_stmt{nullptr, nullptr};
 };
 
 template<>
@@ -162,33 +154,20 @@ public:
             return SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE;
         }();
 
-        if (SQLITE_OK != sqlite3_open_v2(fileName.c_str(), &m_db, flag, nullptr)) {
-            sqlite3_close_v2(m_db);
+        sqlite3* db{nullptr};
+        const auto err = sqlite3_open_v2(fileName.c_str(), &db, flag, nullptr);
+        m_db = std::shared_ptr<sqlite3>{ db, [](auto* db) { sqlite3_close_v2(db); } };
+        if (SQLITE_OK != err) {                
+            sqlite3_close_v2(db);
             throw OpenDatabaseError{fileName};
         }
     }
-
-    Database(Database&& that) noexcept {
-        std::swap(m_db, that.m_db);
-    }
-
-    Database& operator=(Database&& that) noexcept {
-        std::swap(m_db, that.m_db);
-        return *this;
-    }
-
-    ~Database() {
-        sqlite3_close_v2(m_db);
-    }
-
-    Database(const Database&) = delete;
-    Database& operator=(const Database&) = delete;
 
     PreparedStatement prepare(const std::string& sql) const {
         return PreparedStatement{m_db, sql};
     }
 
 private:
-    sqlite3* m_db{nullptr};
+    std::shared_ptr<sqlite3> m_db;
 };
 

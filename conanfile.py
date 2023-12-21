@@ -4,7 +4,7 @@ from conan.tools.cmake import cmake_layout
 from conan.tools.cmake import CMake
 
 class Pkg(ConanFile):
-    name = "SQLite3pp"
+    name = "sqlite3pp"
     version = "0.5.0"
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeToolchain", "CMakeDeps"
@@ -13,7 +13,7 @@ class Pkg(ConanFile):
     test_requires = [ "gtest/[>=1.12]" ]
 
     def package_info(self):
-        self.cpp_info.libs = ["SQLite3pp"]
+        self.cpp_info.libs = ["sqlite3pp"]
 
     def layout(self):
         cmake_layout(self)

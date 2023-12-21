@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace SQLite3pp {
+namespace sqlite3pp {
 
 SQLITE3PP_EXPORT
 class Database {
@@ -44,4 +44,4 @@ private:
     std::shared_ptr<sqlite3> m_db;
 };
 
-} // namespace SQLite3pp
+} // namespace sqlite3pp

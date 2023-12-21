@@ -6,7 +6,7 @@
 #include <vector>
 #include <utility>
 
-namespace SQLite3pp {
+namespace sqlite3pp {
 
 SQLITE3PP_EXPORT class Row {
 public:
@@ -33,4 +33,4 @@ private:
     std::size_t get(std::size_t index, std::vector<char>& value) const;
 };
 
-} // namespace SQLite3pp
+} // namespace sqlite3pp

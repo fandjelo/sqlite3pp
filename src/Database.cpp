@@ -1,8 +1,8 @@
-#include <SQLite3pp/Database.h>
-#include <SQLite3pp/Error.h>
+#include <sqlite3pp/Database.h>
+#include <sqlite3pp/Error.h>
 #include <sqlite3.h>
 
-namespace SQLite3pp {
+namespace sqlite3pp {
 
 Database::Database(const std::string& uri) {
 
@@ -18,4 +18,4 @@ Database::Database(const std::string& uri) {
     }
 }
 
-} // namespace SQLite3pp
+} // namespace sqlite3pp

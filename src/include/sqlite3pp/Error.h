@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace SQLite3pp {
+namespace sqlite3pp {
 
 class Error : public std::runtime_error {
 public:
@@ -57,4 +57,4 @@ private:
     size_t m_index;
 };
 
-} // namespace SQLite3pp
+} // namespace sqlite3pp

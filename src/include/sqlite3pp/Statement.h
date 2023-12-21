@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace SQLite3pp {
+namespace sqlite3pp {
 
 SQLITE3PP_EXPORT
 class Statement {
@@ -66,4 +66,4 @@ private:
     bool hasNext() const;
 };
 
-} // namespace SQLite3pp
+} // namespace sqlite3pp

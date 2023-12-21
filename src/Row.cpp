@@ -1,8 +1,8 @@
-#include <SQLite3pp/Error.h>
-#include <SQLite3pp/Row.h>
+#include <sqlite3pp/Error.h>
+#include <sqlite3pp/Row.h>
 #include <sqlite3.h>
 
-namespace SQLite3pp {
+namespace sqlite3pp {
 
 std::size_t Row::get(std::size_t index, int& value) const {
     if (SQLITE_INTEGER != sqlite3_column_type(m_stmt, index)) {
@@ -40,4 +40,4 @@ std::size_t Row::get(std::size_t index, std::vector<char>& value) const {
     return index + 1;
 }
 
-} // namespace SQLite3pp
+} // namespace sqlite3pp

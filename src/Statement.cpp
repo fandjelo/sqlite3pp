@@ -1,8 +1,8 @@
-#include <SQLite3pp/Error.h>
-#include <SQLite3pp/Statement.h>
+#include <sqlite3pp/Error.h>
+#include <sqlite3pp/Statement.h>
 #include <sqlite3.h>
 
-namespace SQLite3pp {
+namespace sqlite3pp {
 
 Statement::Statement(std::shared_ptr<sqlite3> db, const std::string& sql) : m_db{std::move(db)} {
     sqlite3_stmt* stmt{nullptr};
@@ -49,4 +49,4 @@ bool Statement::hasNext() const {
     }
 }
 
-} // namespace SQLite3pp
+} // namespace sqlite3pp

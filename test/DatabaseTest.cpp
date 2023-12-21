@@ -1,12 +1,12 @@
-#include <SQLite3pp/Database.h>
-#include <SQLite3pp/Error.h>
+#include <sqlite3pp/Database.h>
+#include <sqlite3pp/Error.h>
 
 #include <fstream>
 #include <memory>
 
 #include <gtest/gtest.h>
 
-using namespace SQLite3pp;
+using namespace sqlite3pp;
 
 struct DatabaseTest : public ::testing::Test {
 

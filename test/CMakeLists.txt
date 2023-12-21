@@ -5,8 +5,6 @@ target_link_libraries(database_test PRIVATE database)
 find_package(GTest REQUIRED CONFIG)
 target_link_libraries(database_test PRIVATE GTest::gtest GTest::gtest_main)
 
-if(NOT CMAKE_CROSSCOMPILING)
-    include(GoogleTest)
-    gtest_discover_tests(database_test)
-endif()
+include(GoogleTest)
+gtest_discover_tests(database_test DISCOVERY_MODE PRE_TEST)
 

@@ -9,6 +9,7 @@ class Pkg(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeToolchain", "CMakeDeps"
     requires = [ "sqlite3/[>=3.8]" ]
+    build_requires = [ "cmake/[>=3.18]" ]
     test_requires = [ "gtest/[>=1.12]" ]
 
     def package_info(self):

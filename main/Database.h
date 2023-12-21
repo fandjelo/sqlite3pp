@@ -4,20 +4,75 @@
 
 #include <sqlite3.h>
 
+#include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
+class Row {
+public:
+    explicit Row(sqlite3_stmt* stmt) : m_stmt{stmt} {}
+
+    template <typename T>
+    T get(size_t index) const {
+        T result{};
+        extract(index, result);
+        return result;
+    }
+
+private:
+    sqlite3_stmt* m_stmt;
+
+    size_t extract(size_t index, int& value) const {
+        if (SQLITE_INTEGER != sqlite3_column_type(m_stmt, index)) {
+            throw TypeMismatchError{index};
+        }
+        value = sqlite3_column_int(m_stmt, index);
+        return index + 1;
+    }
+
+    size_t extract(size_t index, double& value) const {
+        if (SQLITE_FLOAT != sqlite3_column_type(m_stmt, index)) {
+            throw TypeMismatchError{index};
+        }
+        value = sqlite3_column_double(m_stmt, index);
+        return index + 1;
+    }
+
+    size_t extract(size_t index, std::string& value) const {
+        if (SQLITE_TEXT != sqlite3_column_type(m_stmt, index)) {
+            throw TypeMismatchError{index};
+        }
+        const auto length = sqlite3_column_bytes(m_stmt, index);
+        const auto* text = sqlite3_column_text(m_stmt, index);
+        value.assign(text, text + length);
+        return index + 1;
+    }
+
+    size_t extract(size_t index, std::vector<char>& value) const {
+        if (SQLITE_BLOB != sqlite3_column_type(m_stmt, index)) {
+            throw TypeMismatchError{index};
+        }
+        const auto length = sqlite3_column_bytes(m_stmt, index);
+        const auto* data = static_cast<const char*>(sqlite3_column_blob(m_stmt, index));
+        value.assign(data, data + length);
+        return index + 1;
+    }
+
+    template <typename K, typename V>
+    size_t extract(size_t index, std::pair<K, V>& result) const {
+        K key{};
+        index = extract(index, key);
+        V value{};
+        index = extract(index, value);
+        result = {key, value};
+        return index;
+    }
+};
+
 class PreparedStatement {
 public:
-    class Row {
-    public:
-        explicit Row(sqlite3_stmt* stmt) : m_stmt{stmt} {}
-        template <typename T> T get(size_t index) const;
-
-    private:
-        sqlite3_stmt* m_stmt;
-    };
 
     PreparedStatement(std::shared_ptr<sqlite3> db, const std::string& sql) : m_db{std::move(db)} {
         sqlite3_stmt* stmt{nullptr};
@@ -51,15 +106,15 @@ public:
     }
 
     void bind(size_t index, const std::vector<char>& value) const {
-        auto err = SQLITE_OK;
-        if (value.size() > 0) {
-            auto* data = new char[value.size()];
-            auto deleter = [](void* ptr) { delete[] static_cast<char*>(ptr); };
-            err = sqlite3_bind_blob(m_stmt.get(), index, data, value.size(), deleter);
-        }
-        else {
-            err = sqlite3_bind_null(m_stmt.get(), index);
-        }
+
+        const auto err = [this, index, &value]() {
+            if (value.size() > 0) {
+                auto* data = new char[value.size()];
+                auto deleter = [](void* ptr) { delete[] static_cast<char*>(ptr); };
+                return sqlite3_bind_blob(m_stmt.get(), index, data, value.size(), deleter);
+            }
+            return sqlite3_bind_null(m_stmt.get(), index);
+        }();
 
         if (SQLITE_OK != err) {
             throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
@@ -68,11 +123,8 @@ public:
 
     void reset() const { sqlite3_reset(m_stmt.get()); }
 
-    void execute() const {
-        execute([](const auto&) {});
-    }
-
-    template <typename T> void execute(T&& handler) const {
+    template <typename T>
+    void execute(T&& handler) const {
         while (true) {
             switch (sqlite3_step(m_stmt.get())) {
             case SQLITE_DONE:
@@ -86,65 +138,51 @@ public:
         }
     }
 
+    void execute() const {
+        execute([](const auto&) {});
+    }
+
+    template <typename T>
+    T execute() const {
+        T result{};
+        execute([this, &result](const auto& row) { extract(row, result); });
+        return result;
+    }
+
 private:
     using PointerType = std::unique_ptr<sqlite3_stmt, void (*)(sqlite3_stmt*)>;
+
+    template <typename T>
+    static void extract(const Row& row, T& result) {
+        result = row.get<T>(0);
+    }
+
+    template <typename T>
+    static void extract(const Row& row, std::vector<T>& results) {
+        results.push_back(row.get<T>(0));
+    }
+
+    template <typename T>
+    static void extract(const Row& row, std::set<T>& results) {
+        results.insert(row.get<T>(0));
+    }
+
+    template <typename K, typename V>
+    static void extract(const Row& row, std::map<K, V>& results) {
+        results.insert(row.get<std::pair<K, V>>(0));
+    }
 
     std::shared_ptr<sqlite3> m_db;
     PointerType m_stmt{nullptr, nullptr};
 };
 
-template <> int PreparedStatement::Row::get<int>(size_t index) const {
-    if (SQLITE_INTEGER != sqlite3_column_type(m_stmt, index)) {
-        throw TypeMismatchError{index};
-    }
-    return sqlite3_column_int(m_stmt, index);
-}
-
-template <> double PreparedStatement::Row::get<double>(size_t index) const {
-    if (SQLITE_FLOAT != sqlite3_column_type(m_stmt, index)) {
-        throw TypeMismatchError{index};
-    }
-    return sqlite3_column_double(m_stmt, index);
-}
-
-template <> std::string PreparedStatement::Row::get<std::string>(size_t index) const {
-    if (SQLITE_TEXT != sqlite3_column_type(m_stmt, index)) {
-        throw TypeMismatchError{index};
-    }
-    const auto length = sqlite3_column_bytes(m_stmt, index);
-    const auto* text = sqlite3_column_text(m_stmt, index);
-    return {text, text + length};
-}
-
-template <> std::vector<char> PreparedStatement::Row::get<std::vector<char>>(size_t index) const {
-    if (SQLITE_BLOB != sqlite3_column_type(m_stmt, index)) {
-        throw TypeMismatchError{index};
-    }
-    const auto length = sqlite3_column_bytes(m_stmt, index);
-    if (length == 0) {
-        return {};
-    }
-    const auto* data = static_cast<const char*>(sqlite3_column_blob(m_stmt, index));
-    return {data, data + length};
-}
-
 class Database {
 public:
-    enum class Mode { readOnly, readWrite, create };
+    enum class Mode { read, write };
 
     Database(const std::string& fileName, Mode mode) {
-        const auto flag = [mode]() {
-            switch (mode) {
-            case Mode::create:
-                return SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE;
-            case Mode::readWrite:
-                return SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE;
-            case Mode::readOnly:
-                [[fallthrough]];
-            default:
-                return SQLITE_OPEN_READONLY;
-            }
-        }();
+
+        const auto flag = (mode == Mode::read) ? SQLITE_OPEN_READONLY : SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE;
 
         sqlite3* db{nullptr};
         const auto err = sqlite3_open_v2(fileName.c_str(), &db, flag, nullptr);

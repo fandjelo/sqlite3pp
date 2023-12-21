@@ -44,11 +44,11 @@ TEST_F(DatabaseTest, BindParams) {
     ASSERT_THROW(stmt.bind(4, 3.14), BindParameterError);
     ASSERT_NO_THROW(stmt.execute());
     db->execute("SELECT * FROM foo", [](const Row& row) {
-        ASSERT_EQ(42, row.get<int>(0));
-        ASSERT_EQ("Hello World", row.get<std::string>(1));
-        ASSERT_EQ(3.14, row.get<double>(2));
-        ASSERT_THROW(row.get<int>(1), TypeMismatchError);
-        ASSERT_THROW(row.get<int>(3), DatabaseError);
+        EXPECT_EQ(42, row.get<int>(0));
+        EXPECT_EQ("Hello World", row.get<std::string>(1));
+        EXPECT_EQ(3.14, row.get<double>(2));
+        EXPECT_THROW(row.get<int>(1), TypeMismatchError);
+        EXPECT_THROW(row.get<int>(3), DatabaseError);
     });
 }
 

@@ -72,8 +72,6 @@ void Statement::bind(size_t index, const std::vector<char>& value) const {
     }
 }
 
-void Statement::reset() const { sqlite3_reset(m_stmt.get()); }
-
 void Statement::execute(std::function<void(const Row&)> handler) const {
     while (true) {
         switch (sqlite3_step(m_stmt.get())) {

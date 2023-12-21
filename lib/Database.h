@@ -2,12 +2,12 @@
 
 #include "DatabaseError.h"
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <set>
 #include <string>
 #include <vector>
-#include <functional>
 
 struct sqlite3;
 struct sqlite3_stmt;
@@ -45,7 +45,6 @@ public:
     void bind(size_t index, double value) const;
     void bind(size_t index, const std::string& value) const;
     void bind(size_t index, const std::vector<char>& value) const;
-    void reset() const;
 
     void execute(std::function<void(const Row&)> handler) const;
 

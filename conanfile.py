@@ -46,7 +46,7 @@ class sqlite3ppRecipe(ConanFile):
         "with_tests": [True, False],
     }
     default_options = {
-        "shared": True, 
+        "shared": False,
         "fPIC": True,
         "with_tests": True
     }

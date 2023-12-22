@@ -60,4 +60,4 @@ jobs:
       run: conan profile detect
 
     - name: Build and Test project
-      run: conan create ${{ github.workspace }} --build=missing -o shared=True
+      run: conan create ${{ github.workspace }} --build=missing

@@ -24,11 +24,12 @@
 from conan import ConanFile
 from conan.tools.build import can_run
 from conan.tools.cmake import CMake, cmake_layout
+from conan.tools.files import load
+import re
 
 class sqlite3ppRecipe(ConanFile):
 
     name = "sqlite3pp"
-    version = "0.5.0"
     package_type = "library"
 
     # Optional information
@@ -55,8 +56,12 @@ class sqlite3ppRecipe(ConanFile):
     generators = "CMakeToolchain", "CMakeDeps"
     exports_sources = "CMakeLists.txt", "src/*"
 
+    def set_version(self):
+        content = load(self, "CMakeLists.txt")
+        pattern = re.compile("project.*VERSION *([.0-9]+)")
+        self.version = pattern.search(content).group(1)
+
     def requirements(self):
-        #self.tool_requires("cmake/[>=3.18]")
         self.requires("sqlite3/[>=3.8]")
         if self.options.with_tests:
             self.test_requires("gtest/[>=1.12]")

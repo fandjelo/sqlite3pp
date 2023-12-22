@@ -52,7 +52,7 @@ configure_package_config_file(
 
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/sqlite3ppConfigVersion.cmake
-    VERSION 1.0.0
+    VERSION ${CMAKE_PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion
 )
 

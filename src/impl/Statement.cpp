@@ -1,6 +1,6 @@
+#include <sqlite3.h>
 #include <sqlite3pp/Error.h>
 #include <sqlite3pp/Statement.h>
-#include <sqlite3.h>
 
 namespace sqlite3pp {
 
@@ -9,8 +9,7 @@ Statement::Statement(std::shared_ptr<sqlite3> db, const std::string& sql) : m_db
     const auto err = sqlite3_prepare_v2(m_db.get(), sql.c_str(), sql.size(), &stmt, nullptr);
     m_stmt = {stmt, [](auto* stmt) { sqlite3_finalize(stmt); }};
     if (SQLITE_OK != err) {
-        const auto what = std::string{sqlite3_errmsg(m_db.get())};
-        throw PrepareStatementError{what, sql};
+        throw PrepareStatementError{sqlite3_errmsg(m_db.get()), sql};
     }
 }
 

@@ -64,7 +64,7 @@ class sqlite3ppRecipe(ConanFile):
     def requirements(self):
         self.requires("sqlite3/[>=3.8]")
         if self.options.with_tests:
-            self.test_requires("gtest/[>=1.12]")
+            self.test_requires("gtest/1.12.1")
 
     def config_options(self):
         if self.settings.os == "Windows":

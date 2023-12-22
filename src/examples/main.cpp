@@ -23,22 +23,46 @@
  */
 #include <sqlite3pp/Database.h>
 #include <iostream>
+#include <vector>
 
 int main(int argc, const char** argv) {
 
     // How to create and fill a database
     sqlite3pp::Database db{":memory:"};
-    db.execute("CREATE TABLE foo (a,b,c)");
-    db.execute("INSERT INTO foo VALUES (1,2,3), (2,3,4), (3,4,5)");
+    db.execute("CREATE TABLE foo (id, name)");
+    db.execute("INSERT INTO foo VALUES (1,'one'), (2,'two'), (3,'three')");
 
-    // How to read values from the database into a map
-    for (const auto& [key, value] : db.execute<std::map<int,int>>("SELECT a,c FROM foo")) {
-        std::cout << key << ',' << value << '\n';
+    // How to read values from the database into an int
+    std::cout << db.execute<int>("SELECT id FROM foo LIMIT 1") << '\n';
+
+    // How to read values from the database into a string
+    std::cout << db.execute<std::string>("SELECT name FROM foo LIMIT 1") << '\n';
+
+    // How to read values from the database into a vector
+    for (const auto& id : db.execute<std::vector<int>>("SELECT id FROM foo")) {
+        std::cout << id << '\n';
     }
 
+    // How to read values from the database into a vector of pairs
+    for (const auto& [id, name] : db.execute<std::vector<std::pair<int, std::string>>>("SELECT id, name FROM foo")) {
+        std::cout << id << ',' << name << '\n';
+    }
+
+    // How to read values from the database into a map
+    std::cout << db.execute<std::map<int, std::string>>("SELECT id, name FROM foo")[1] << '\n';
+
     // How to use prepared statement
-    const auto stmt = db.prepare("SELECT a FROM foo WHERE c = ? LIMIT 1");
-    stmt.bind(1, 5);
-    std::cout << stmt.execute<int>() << '\n';
+    const auto stmt = db.prepare("SELECT name FROM foo WHERE id >= ?");
+    stmt.bind(1, 2);
+    for (const auto& name : stmt.execute<std::vector<std::string>>()) {
+        std::cout << name << '\n';
+    }
+
+    // How to use transaction
+    db.transaction([](const auto& t) {
+        t.execute("INSERT INTO foo VALUES (4,'four')");
+        t.execute("INSERT INTO foo VALUES (5,'five')");
+    });
+
     return 0;
 }

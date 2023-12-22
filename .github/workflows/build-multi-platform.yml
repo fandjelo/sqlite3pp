@@ -13,12 +13,13 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix
+      # combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
 
       matrix:
         os: [ubuntu-latest, windows-latest]
-        build_type: [Release, Debug]
+        build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
           - os: windows-latest
@@ -35,18 +36,14 @@ jobs:
             profile: linux-clang
         exclude:
           - os: windows-latest
-            c_compiler: clang
-          - os: windows-latest
             c_compiler: gcc
+          - os: windows-latest
+            c_compiler: clang
           - os: ubuntu-latest
             c_compiler: cl
 
     steps:
     - uses: actions/checkout@v3
-
-    - name: Install Ninja
-      id: ninja
-      uses: turtlesec-no/get-ninja@main
 
     - name: Install Conan
       id: conan

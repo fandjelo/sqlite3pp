@@ -31,7 +31,7 @@
 
 namespace sqlite3pp {
 
-SQLITE3PP_EXPORT class Row {
+class SQLITE3PP_EXPORT Row {
 public:
     explicit Row(sqlite3_stmt* stmt) : m_stmt{stmt} {}
 

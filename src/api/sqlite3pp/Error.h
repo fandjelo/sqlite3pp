@@ -23,17 +23,18 @@
  */
 #pragma once
 
+#include "BaseDefs.h"
 #include <stdexcept>
 #include <string>
 
 namespace sqlite3pp {
 
-class Error : public std::runtime_error {
+class SQLITE3PP_EXPORT Error : public std::runtime_error {
 public:
     Error(const std::string& what) noexcept : std::runtime_error(what) {}
 };
 
-class OpenDatabaseError : public Error {
+class SQLITE3PP_EXPORT OpenDatabaseError : public Error {
 public:
     OpenDatabaseError(std::string fileName, std::string reason)
     : Error{"Failed to open database: " + fileName + ": " + reason}, m_fileName{std::move(fileName)} {}
@@ -47,7 +48,7 @@ private:
     std::string m_reason;
 };
 
-class PrepareStatementError : public Error {
+class SQLITE3PP_EXPORT PrepareStatementError : public Error {
 public:
     PrepareStatementError(const std::string& what, std::string sql)
     : Error{"Failed to prepare statement: " + what}, m_sql{std::move(sql)} {}
@@ -58,7 +59,7 @@ private:
     std::string m_sql;
 };
 
-class BindParameterError : public Error {
+class SQLITE3PP_EXPORT BindParameterError : public Error {
 public:
     BindParameterError(const std::string& what, size_t index)
     : Error{"Failed to bind paramter " + std::to_string(index) + ": " + what}, m_index{index} {}
@@ -69,7 +70,7 @@ private:
     size_t m_index;
 };
 
-class TypeMismatchError : public Error {
+class SQLITE3PP_EXPORT TypeMismatchError : public Error {
 public:
     TypeMismatchError(size_t index)
     : Error{"Result type mismatch in column " + std::to_string(index)}, m_index{index} {}

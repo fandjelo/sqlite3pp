@@ -34,8 +34,7 @@
 
 namespace sqlite3pp {
 
-SQLITE3PP_EXPORT
-class Statement {
+class SQLITE3PP_EXPORT Statement {
 public:
     Statement(std::shared_ptr<sqlite3> db, const std::string& sql);
 

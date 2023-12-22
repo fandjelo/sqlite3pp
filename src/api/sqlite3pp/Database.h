@@ -31,8 +31,7 @@
 
 namespace sqlite3pp {
 
-SQLITE3PP_EXPORT
-class Database {
+class SQLITE3PP_EXPORT Database {
 public:
     explicit Database(const std::string& uri);
 

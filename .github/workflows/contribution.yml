@@ -1,0 +1,20 @@
+name: Contribution workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  run-linters:
+    uses: fandjelo/sqlite3pp/.github/workflows/linters.yml@main
+
+  build-multi-platform:
+    needs: [run-linters]
+    uses: fandjelo/sqlite3pp/.github/workflows/build-multi-platform.yml@main
+  
+
+
+

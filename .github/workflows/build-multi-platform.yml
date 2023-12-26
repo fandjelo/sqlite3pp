@@ -3,10 +3,7 @@
 name: Build on multiple platforms
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_call:
 
 jobs:
   build:
@@ -43,7 +40,7 @@ jobs:
             c_compiler: cl
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install Conan
       id: conan

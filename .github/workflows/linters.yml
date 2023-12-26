@@ -13,7 +13,9 @@ jobs:
 
     - uses: ZedThree/clang-tidy-review@v0.14.0
       id: review
-
-
+      with:
+        apt_packages: libsqlite3-dev,googletest
+        cmake_command: cmake -B build  -S .
+        build_dir: build
 
   

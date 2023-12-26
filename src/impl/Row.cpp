@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include <sqlite3.h>
 #include <sqlite3pp/Error.h>
 #include <sqlite3pp/Row.h>
-#include <sqlite3.h>
 
 namespace sqlite3pp {
 

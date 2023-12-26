@@ -6,11 +6,11 @@ on:
 jobs:
 
   run-linters:
-    uses: fandjelo/sqlite3pp/.github/workflows/linters.yml@main
+    uses: ./.github/workflows/linters.yml
 
   build-multi-platform:
     needs: [run-linters]
-    uses: fandjelo/sqlite3pp/.github/workflows/build-multi-platform.yml@main
+    uses: ./.github/workflows/build-multi-platform.yml
   
 
 

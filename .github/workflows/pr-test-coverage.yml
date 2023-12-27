@@ -1,4 +1,4 @@
-name: Pull-Request Linters
+name: Test Code Coverage
 
 on:
   workflow_call:
@@ -27,13 +27,13 @@ jobs:
       run: |
         lcov -c -o test-coverage.info -d build 
         lcov -o test-coverage.info -e test-coverage.info "$(pwd)/src/*"
-        genhtml test-coverage.info --output-directory test-coverage
+        genhtml test-coverage.info -o test-coverage-html
 
     - name: Archive code coverage results
       uses: actions/upload-artifact@v3
       with:
-        name: code-coverage-report
-        path: test-coverage
+        name: test-coverage-html
+        path: test-coverage-html
 
     - uses: fjlopezs/lcov-reporter-action@v1.0.0
       with:

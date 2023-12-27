@@ -53,7 +53,7 @@ private:
     std::size_t get(std::size_t index, int& value) const;
     std::size_t get(std::size_t index, double& value) const;
     std::size_t get(std::size_t index, std::string& value) const;
-    std::size_t get(std::size_t index, std::vector<char>& value) const;
+    std::size_t get(std::size_t index, std::vector<unsigned char>& value) const;
 };
 
 } // namespace sqlite3pp

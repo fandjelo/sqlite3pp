@@ -53,11 +53,11 @@ std::size_t Row::get(std::size_t index, std::string& value) const {
     return index + 1;
 }
 
-std::size_t Row::get(std::size_t index, std::vector<char>& value) const {
+std::size_t Row::get(std::size_t index, std::vector<unsigned char>& value) const {
     if (SQLITE_BLOB != sqlite3_column_type(m_stmt, static_cast<int>(index))) {
         throw TypeMismatchError{index};
     }
-    const auto* data = static_cast<const char*>(sqlite3_column_blob(m_stmt, static_cast<int>(index)));
+    const auto* data = static_cast<const unsigned char*>(sqlite3_column_blob(m_stmt, static_cast<int>(index)));
     const auto length = sqlite3_column_bytes(m_stmt, static_cast<int>(index));
     value.assign(data, data + length); // NOLINT: bridge to C-code
     return index + 1;

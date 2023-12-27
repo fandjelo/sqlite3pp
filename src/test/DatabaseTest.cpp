@@ -126,6 +126,14 @@ TEST_F(DatabaseTest, ExtractSet) {
     EXPECT_EQ(T2({{1, "one"}, {2, "two"}, {3, "one"}}), db->execute<T2>("SELECT a,b FROM foo"));
 }
 
+TEST_F(DatabaseTest, ExtractBlob) {
+    ASSERT_NO_THROW(db->execute("CREATE TABLE foo(a)"));
+    ASSERT_NO_THROW(db->execute("INSERT INTO foo VALUES (X'DEADBEAF')"));
+
+    using T1 = std::vector<unsigned char>;
+    EXPECT_EQ(T1({0xDE, 0xAD, 0xBE, 0xAF}), db->execute<T1>("SELECT a FROM foo"));
+}
+
 TEST_F(DatabaseTest, TransactionConflict) {
     ASSERT_THROW(db->transaction([](const auto& db) { db.execute("BEGIN"); }), Error);
 }

@@ -24,9 +24,9 @@
 #pragma once
 
 #ifdef _WIN32
-#  define SQLITE3PP_EXPORT __declspec(dllexport)
+#define SQLITE3PP_EXPORT __declspec(dllexport)
 #else
-#  define SQLITE3PP_EXPORT
+#define SQLITE3PP_EXPORT
 #endif
 
 // Forward declaration of internal types

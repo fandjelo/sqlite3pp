@@ -26,8 +26,8 @@
 #include "BaseDefs.h"
 
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace sqlite3pp {
 

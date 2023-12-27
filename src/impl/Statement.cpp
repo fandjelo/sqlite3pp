@@ -29,7 +29,7 @@ namespace sqlite3pp {
 
 Statement::Statement(std::shared_ptr<sqlite3> db, const std::string& sql) : m_db{std::move(db)} {
     sqlite3_stmt* stmt{nullptr};
-    const auto err = sqlite3_prepare_v2(m_db.get(), sql.c_str(), sql.size(), &stmt, nullptr);
+    const auto err = sqlite3_prepare_v2(m_db.get(), sql.c_str(), static_cast<int>(sql.size()), &stmt, nullptr);
     m_stmt = {stmt, [](auto* stmt) { sqlite3_finalize(stmt); }};
     if (SQLITE_OK != err) {
         throw PrepareStatementError{sqlite3_errmsg(m_db.get()), sql};
@@ -37,25 +37,27 @@ Statement::Statement(std::shared_ptr<sqlite3> db, const std::string& sql) : m_db
 }
 
 void Statement::bind(std::size_t index, int value) const {
-    if (SQLITE_OK != sqlite3_bind_int(m_stmt.get(), index, value)) {
+    if (SQLITE_OK != sqlite3_bind_int(m_stmt.get(), static_cast<int>(index), value)) {
         throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
     }
 }
 
 void Statement::bind(std::size_t index, double value) const {
-    if (SQLITE_OK != sqlite3_bind_double(m_stmt.get(), index, value)) {
+    if (SQLITE_OK != sqlite3_bind_double(m_stmt.get(), static_cast<int>(index), value)) {
         throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
     }
 }
 
 void Statement::bind(std::size_t index, const std::string& value) const {
-    if (SQLITE_OK != sqlite3_bind_text(m_stmt.get(), index, value.data(), value.size(), SQLITE_TRANSIENT)) {
+    if (SQLITE_OK != sqlite3_bind_text(m_stmt.get(), static_cast<int>(index), value.data(),
+                                       static_cast<int>(value.size()), SQLITE_TRANSIENT)) {
         throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
     }
 }
 
 void Statement::bind(std::size_t index, const std::vector<char>& value) const {
-    if (SQLITE_OK != sqlite3_bind_blob(m_stmt.get(), index, value.data(), value.size(), SQLITE_TRANSIENT)) {
+    if (SQLITE_OK != sqlite3_bind_blob(m_stmt.get(), static_cast<int>(index), value.data(),
+                                       static_cast<int>(value.size()), SQLITE_TRANSIENT)) {
         throw BindParameterError{sqlite3_errmsg(m_db.get()), index};
     }
 }

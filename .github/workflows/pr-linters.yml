@@ -1,0 +1,31 @@
+name: Pull-Request Linters
+
+on:
+  workflow_call:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install clang-tidy-14 libsqlite3-dev libgtest-dev -y
+
+    - uses: actions/checkout@v4
+
+    - name: Configure CMake project
+      run: cmake -B build -S .
+
+    - name: Run clang-tidy
+      run: >
+        clang-tidy-14 -p build
+        $(find src/{api,impl,examples} -type f -regex '.*\.[ch]\(pp\)?')
+        --export-fixes clang-tidy-fixes.yml
+
+    - uses: platisd/clang-tidy-pr-comments@v1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        clang_tidy_fixes: clang-tidy-fixes.yml

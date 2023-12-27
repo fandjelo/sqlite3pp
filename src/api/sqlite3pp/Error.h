@@ -24,6 +24,7 @@
 #pragma once
 
 #include "BaseDefs.h"
+
 #include <stdexcept>
 #include <string>
 

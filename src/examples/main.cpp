@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 #include <sqlite3pp/Database.h>
+
 #include <iostream>
 #include <vector>
 

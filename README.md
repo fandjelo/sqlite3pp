@@ -34,7 +34,7 @@ custom options, which can be used to control the build.
  Flag                    | Values     | Default | Description
 -------------------------|------------|---------|-----------------------------
  SQLITE3PP_WITH_TESTS    | True/False | True    | Build with GTest Unit-Tests    
- SQLITE3OO_WITH_EXAMPLES | True/False | True    | Build with examples 
+ SQLITE3PP_WITH_EXAMPLES | True/False | True    | Build with examples 
 
 When building without tests the build scripts will not search for GTest, so if
 you build on a system where this is not available, may be this is something for

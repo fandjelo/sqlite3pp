@@ -6,13 +6,13 @@ on:
 jobs:
 
   check-code-quality:
-    uses: ./.github/workflows/pr-code-quality.yml
+    uses: ./.github/workflows/check-pr-code-quality.yml
 
   check-code-format:
-    uses: ./.github/workflows/pr-code-format.yml
+    uses: ./.github/workflows/check-code-format.yml
 
-  test-coverage:
-    uses: ./.github/workflows/pr-test-coverage.yml
+  check-test-coverage:
+    uses: ./.github/workflows/check-test-coverage.yml
 
   build-multi-platform:
     uses: ./.github/workflows/build-multi-platform.yml

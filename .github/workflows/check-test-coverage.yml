@@ -1,11 +1,11 @@
-name: Test Code Coverage
+name: Check Test Coverage
 
 on:
   workflow_call:
 
 jobs:
 
-  test-code-coverage:
+  check-test-coverage:
     runs-on: ubuntu-latest
 
     steps:

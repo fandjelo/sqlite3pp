@@ -1,11 +1,11 @@
-name: Pull-Request Linters
+name: Check PR code quality
 
 on:
   workflow_call:
 
 jobs:
 
-  check-code-quality:
+  check-pr-code-quality:
     runs-on: ubuntu-latest
 
     steps:

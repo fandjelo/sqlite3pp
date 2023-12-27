@@ -1,0 +1,19 @@
+name: Pull-Request checks
+
+on:
+  pull_request:
+
+jobs:
+
+  check-code-quality:
+    uses: ./.github/workflows/pr-code-quality.yml
+
+  check-code-format:
+    uses: ./.github/workflows/pr-code-format.yml
+
+  build-multi-platform:
+    uses: ./.github/workflows/build-multi-platform.yml
+  
+
+
+

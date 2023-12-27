@@ -5,7 +5,7 @@ on:
 
 jobs:
 
-  build:
+  check-code-quality:
     runs-on: ubuntu-latest
 
     steps:

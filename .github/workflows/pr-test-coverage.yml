@@ -1,0 +1,43 @@
+name: Pull-Request Linters
+
+on:
+  workflow_call:
+
+jobs:
+
+  test-code-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install libsqlite3-dev libgtest-dev lcov -y
+
+    - uses: actions/checkout@v4
+
+    - name: Build and run tests
+      run: |
+        export CXXFLAGS="-g -fprofile-arcs -ftest-coverage"
+        cmake -B build -S .
+        cmake --build build
+        ctest --test-dir build
+
+    - name: Generate coverage
+      run: |
+        lcov -c -o test-coverage.info -d build 
+        lcov -o test-coverage.info -e test-coverage.info "$(pwd)/src/*"
+        genhtml test-coverage.info --output-directory test-coverage
+
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-coverage-report
+        path: test-coverage
+
+    - uses: fjlopezs/lcov-reporter-action@v1.0.0
+      with:
+        lcov-file: test-coverage.info
+        fail-drop-percent-threshold: 90
+        filter-changed-files: false
+

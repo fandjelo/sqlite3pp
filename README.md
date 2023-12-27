@@ -16,7 +16,7 @@ Building with CMake
 ```bash
 cd sqlite3pp
 cmake -B build -S . -D CMAKE_BUILD_TYPE=Release
-cmkae --build build
+cmake --build build
 ```
 
 Building with Conan

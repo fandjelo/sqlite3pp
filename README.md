@@ -43,7 +43,7 @@ you. To build SQLite3pp using CMake without tests, run:
 ```bash
 cd sqlite3pp
 cmake -B build -S . -D CMAKE_BUILD_TYPE=Release -D SQLITE3PP_WITH_TESTS=False
-cmkae --build build
+cmake --build build
 ```
 
 ## How to use in your project?

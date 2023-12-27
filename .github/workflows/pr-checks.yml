@@ -11,6 +11,9 @@ jobs:
   check-code-format:
     uses: ./.github/workflows/pr-code-format.yml
 
+  test-coverage:
+    uses: ./.github/workflows/pr-test-coverage.yml
+
   build-multi-platform:
     uses: ./.github/workflows/build-multi-platform.yml
   

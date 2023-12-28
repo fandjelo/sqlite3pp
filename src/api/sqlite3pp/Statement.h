@@ -41,7 +41,7 @@ public:
     void bind(size_t index, int value) const;
     void bind(size_t index, double value) const;
     void bind(size_t index, const std::string& value) const;
-    void bind(size_t index, const std::vector<unsigned char>& value) const;
+    void bind(size_t index, const Blob& value) const;
 
     template <typename Handler>
     void execute(Handler&& handler) const {
@@ -62,13 +62,11 @@ public:
     }
 
 private:
+    static void get(const Row& row, Blob& result) { result = row.get<Blob>(0); }
+
     template <typename T>
     static void get(const Row& row, T& result) {
         result = row.get<T>(0);
-    }
-
-    static void get(const Row& row, std::vector<unsigned char>& result) {
-        result = row.get<std::vector<unsigned char>>(0);
     }
 
     template <typename T>

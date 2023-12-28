@@ -25,11 +25,14 @@
 
 #include "BaseDefs.h"
 
+#include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace sqlite3pp {
+
+using Blob = std::vector<std::uint8_t>;
 
 class SQLITE3PP_EXPORT Row {
 public:
@@ -53,7 +56,7 @@ private:
     std::size_t get(std::size_t index, int& value) const;
     std::size_t get(std::size_t index, double& value) const;
     std::size_t get(std::size_t index, std::string& value) const;
-    std::size_t get(std::size_t index, std::vector<unsigned char>& value) const;
+    std::size_t get(std::size_t index, Blob& value) const;
 };
 
 } // namespace sqlite3pp

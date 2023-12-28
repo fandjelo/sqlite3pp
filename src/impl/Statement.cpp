@@ -55,7 +55,7 @@ void Statement::bind(std::size_t index, const std::string& value) const {
     }
 }
 
-void Statement::bind(std::size_t index, const std::vector<unsigned char>& value) const {
+void Statement::bind(std::size_t index, const Blob& value) const {
     if (SQLITE_OK != sqlite3_bind_blob(m_stmt.get(), static_cast<int>(index), value.data(),
                                        static_cast<int>(value.size()), SQLITE_TRANSIENT)) {
         throw BindParameterError{sqlite3_errmsg(m_db.get()), index};

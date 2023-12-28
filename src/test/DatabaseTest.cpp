@@ -67,15 +67,14 @@ TEST_F(DatabaseTest, BindParams) {
     ASSERT_NO_THROW(stmt.bind(1, 42));
     ASSERT_NO_THROW(stmt.bind(2, "Hello World"));
     ASSERT_NO_THROW(stmt.bind(3, 3.14));
-    using T1 = std::vector<unsigned char>;
-    ASSERT_NO_THROW(stmt.bind(4, T1({0xDE, 0xAD, 0xBE, 0xAF})));
+    ASSERT_NO_THROW(stmt.bind(4, Blob({0xDE, 0xAD, 0xBE, 0xAF})));
     ASSERT_THROW(stmt.bind(5, 0), BindParameterError);
     ASSERT_NO_THROW(stmt.execute());
     db->execute("SELECT * FROM foo", [](const Row& row) {
         EXPECT_EQ(42, row.get<int>(0));
         EXPECT_EQ("Hello World", row.get<std::string>(1));
         EXPECT_EQ(3.14, row.get<double>(2));
-        EXPECT_EQ(T1({0xDE, 0xAD, 0xBE, 0xAF}), row.get<T1>(3));
+        EXPECT_EQ(Blob({0xDE, 0xAD, 0xBE, 0xAF}), row.get<Blob>(3));
         EXPECT_THROW(row.get<int>(1), TypeMismatchError);
         EXPECT_THROW(row.get<int>(4), Error);
     });
@@ -132,9 +131,7 @@ TEST_F(DatabaseTest, ExtractSet) {
 TEST_F(DatabaseTest, ExtractBlob) {
     ASSERT_NO_THROW(db->execute("CREATE TABLE foo(a)"));
     ASSERT_NO_THROW(db->execute("INSERT INTO foo VALUES (X'DEADBEAF')"));
-
-    using T1 = std::vector<unsigned char>;
-    EXPECT_EQ(T1({0xDE, 0xAD, 0xBE, 0xAF}), db->execute<T1>("SELECT a FROM foo"));
+    EXPECT_EQ(Blob({0xDE, 0xAD, 0xBE, 0xAF}), db->execute<Blob>("SELECT a FROM foo"));
 }
 
 TEST_F(DatabaseTest, TransactionConflict) {

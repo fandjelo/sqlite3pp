@@ -49,13 +49,13 @@ public:
         return prepare(sql).execute<T>();
     }
 
-    template <typename T>
-    void transaction(T&& actions) const {
+    template <typename Action>
+    void transaction(const Action& action) const {
         execute("BEGIN");
         // Misuse unique_ptr as a scope guard to do rollback on error
         using Guard = std::unique_ptr<const Database, void (*)(const Database*)>;
         auto guard = Guard{this, [](const auto* db) { db->execute("ROLLBACK"); }};
-        actions(*this);
+        action(*this);
         guard.release()->execute("COMMIT");
     }
 

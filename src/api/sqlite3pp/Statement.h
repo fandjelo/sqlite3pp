@@ -44,7 +44,7 @@ public:
     void bind(size_t index, const Blob& value) const;
 
     template <typename Handler>
-    void execute(Handler&& handler) const {
+    void execute(const Handler& handler) const {
         while (hasNext()) {
             handler(Row{m_stmt.get()});
         }

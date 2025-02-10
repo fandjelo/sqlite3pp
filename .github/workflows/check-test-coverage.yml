@@ -6,7 +6,7 @@ on:
 jobs:
 
   check-test-coverage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Install dependencies
@@ -27,10 +27,13 @@ jobs:
       run: |
         lcov -c -o test-coverage.info -d build 
         lcov -o test-coverage.info -e test-coverage.info "$(pwd)/src/*"
+
+    - name: Generate coverage HTML report
+      run: |
         genhtml test-coverage.info -o test-coverage-html
 
-    - name: Archive code coverage results
-      uses: actions/upload-artifact@v3
+    - name: Archive code coverage HTML report
+      uses: actions/upload-artifact@v4
       with:
         name: test-coverage-html
         path: test-coverage-html

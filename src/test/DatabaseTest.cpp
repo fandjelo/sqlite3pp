@@ -60,6 +60,16 @@ TEST_F(DatabaseTest, SimpleExecute) {
     ASSERT_EQ(2, db->execute<int>("SELECT count(*) FROM foo"));
 }
 
+TEST_F(DatabaseTest, TypeMismatch) {
+
+    ASSERT_NO_THROW(db->execute("CREATE TABLE foo(a,b)"));
+    ASSERT_NO_THROW(db->execute("INSERT INTO foo VALUES (1,'one')"));
+    ASSERT_THROW(db->execute<std::string>("SELECT a FROM foo LIMIT 1"), TypeMismatchError);
+    ASSERT_THROW(db->execute<double>("SELECT a FROM foo LIMIT 1"), TypeMismatchError);
+    ASSERT_THROW(db->execute<Blob>("SELECT a FROM foo LIMIT 1"), TypeMismatchError);
+    ASSERT_THROW(db->execute<int>("SELECT b FROM foo LIMIT 1"), TypeMismatchError);
+}
+
 TEST_F(DatabaseTest, BindParams) {
 
     ASSERT_NO_THROW(db->execute("CREATE TABLE foo(a,b,c,d)"));

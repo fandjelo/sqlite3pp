@@ -16,12 +16,23 @@ jobs:
 
     - uses: actions/checkout@v4
 
-    - name: Build and run tests
-      run: |
-        export CXXFLAGS="-g -fprofile-arcs -ftest-coverage"
-        cmake -B build -S .
-        cmake --build build
-        ctest --test-dir build
+    - name: Install Conan
+      id: conan
+      uses: turtlebrowser/get-conan@main
+      with:
+        version: 2.0.16
+
+    - name: Create Conan profile
+      run: | 
+        echo "Conan version ${{ steps.conan.outputs.version }}"
+        conan profile detect --force
+
+    - name: Build and Test project
+      run: >
+        conan create ${{ github.workspace }}
+        --profile .github/conan-profiles/linux-gcc-coverage
+        --build=missing 
+        -s build_type=Release
 
     - name: Generate coverage
       run: |

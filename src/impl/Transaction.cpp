@@ -21,46 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
-#include "BaseDefs.h"
-#include "Statement.h"
-#include "Transaction.h"
-
-#include <memory>
-#include <string>
+#include <sqlite3pp/Transaction.h>
 
 namespace sqlite3pp {
 
-class SQLITE3PP_EXPORT Database {
-public:
-    explicit Database(const std::string& uri);
+Transaction::Transaction(std::shared_ptr<sqlite3> db) : m_db(std::move(db)) { execute("BEGIN"); }
 
-    Statement prepare(const std::string& sql) const { return Statement{m_db, sql}; }
+Transaction::~Transaction() { execute("ROLLBACK"); }
 
-    void execute(const std::string& sql) const { prepare(sql).execute(); }
-
-    template <typename T>
-    void execute(const std::string& sql, T&& action) const {
-        prepare(sql).execute(std::forward<T>(action));
-    }
-
-    template <typename T>
-    T execute(const std::string& sql) const {
-        return prepare(sql).execute<T>();
-    }
-
-    Transaction transaction() const { return Transaction{m_db}; }
-
-    template <typename Action>
-    void transaction(const Action& action) const {
-        const auto transaction = Transaction{m_db};
-        action(transaction);
-        transaction.commit();
-    }
-
-private:
-    std::shared_ptr<sqlite3> m_db;
-};
+void Transaction::commit() const {
+    execute("COMMIT");
+    execute("BEGIN");
+}
 
 } // namespace sqlite3pp

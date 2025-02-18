@@ -23,9 +23,9 @@
  */
 #pragma once
 
-#include "BaseDefs.h"
-#include "Statement.h"
-#include "Transaction.h"
+#include "BaseDefs.hpp"
+#include "Statement.hpp"
+#include "Transaction.hpp"
 
 #include <memory>
 #include <string>

@@ -23,8 +23,8 @@
  */
 #pragma once
 
-#include "BaseDefs.h"
-#include "Row.h"
+#include "BaseDefs.hpp"
+#include "Row.hpp"
 
 #include <map>
 #include <memory>

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include <sqlite3pp/Transaction.h>
+#include <sqlite3pp/Transaction.hpp>
 
 namespace sqlite3pp {
 

@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 #include <sqlite3.h>
-#include <sqlite3pp/Database.h>
-#include <sqlite3pp/Error.h>
+#include <sqlite3pp/Database.hpp>
+#include <sqlite3pp/Error.hpp>
 
 namespace sqlite3pp {
 

@@ -23,7 +23,7 @@
  */
 #pragma once
 
-#include "BaseDefs.h"
+#include "BaseDefs.hpp"
 
 #include <cstdint>
 #include <string>

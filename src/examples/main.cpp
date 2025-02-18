@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <sqlite3pp/Database.h>
+#include <sqlite3pp/Database.hpp>
 
 #include <iostream>
 #include <vector>

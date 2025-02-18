@@ -22,7 +22,7 @@
 # SOFTWARE.
 #
 cmake_minimum_required(VERSION 3.18)
-project(sqlite3pp VERSION 0.5.2)
+project(sqlite3pp VERSION 0.6.0)
 
 option(SQLITE3PP_WITH_TESTS "Build with tests" TRUE)
 option(SQLITE3PP_WITH_EXAMPLES "Build with examples" TRUE)

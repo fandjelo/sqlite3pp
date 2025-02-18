@@ -145,7 +145,7 @@ TEST_F(DatabaseTest, ExtractBlob) {
 }
 
 TEST_F(DatabaseTest, TransactionConflict) {
-    ASSERT_THROW(db->transaction([](const auto& db) { db.execute("BEGIN"); }), Error);
+    ASSERT_THROW(db->transaction([](const auto& t) { t.execute("BEGIN"); }), Error);
 }
 
 TEST_F(DatabaseTest, TransactionRollback) {
@@ -153,10 +153,10 @@ TEST_F(DatabaseTest, TransactionRollback) {
     ASSERT_NO_THROW(db->execute("CREATE TABLE foo(a,b)"));
     // Workaround: declaring transaction outside of the macro to avoid errors
     // when compiling on MSVC
-    auto batch = [](const sqlite3pp::Database& db) {
-        ASSERT_NO_THROW(db.execute("INSERT INTO foo VALUES (1,'one')"));
-        ASSERT_NO_THROW(db.execute("INSERT INTO foo VALUES (2,'two')"));
-        ASSERT_NO_THROW(db.execute("INSERT INTO foo VALUES (3,'three')"));
+    auto batch = [](const auto& t) {
+        ASSERT_NO_THROW(t.execute("INSERT INTO foo VALUES (1,'one')"));
+        ASSERT_NO_THROW(t.execute("INSERT INTO foo VALUES (2,'two')"));
+        ASSERT_NO_THROW(t.execute("INSERT INTO foo VALUES (3,'three')"));
         throw 42;
     };
     ASSERT_THROW(db->transaction(batch), int);
@@ -166,10 +166,10 @@ TEST_F(DatabaseTest, TransactionRollback) {
 TEST_F(DatabaseTest, TransactionCommit) {
 
     ASSERT_NO_THROW(db->execute("CREATE TABLE foo(a,b)"));
-    auto batch = [](const sqlite3pp::Database& db) {
-        ASSERT_NO_THROW(db.execute("INSERT INTO foo VALUES (1,'one')"));
-        ASSERT_NO_THROW(db.execute("INSERT INTO foo VALUES (2,'two')"));
-        ASSERT_NO_THROW(db.execute("INSERT INTO foo VALUES (3,'three')"));
+    auto batch = [](const auto& t) {
+        ASSERT_NO_THROW(t.execute("INSERT INTO foo VALUES (1,'one')"));
+        ASSERT_NO_THROW(t.execute("INSERT INTO foo VALUES (2,'two')"));
+        ASSERT_NO_THROW(t.execute("INSERT INTO foo VALUES (3,'three')"));
     };
     ASSERT_NO_THROW(db->transaction(batch));
     ASSERT_EQ(3, db->execute<int>("SELECT count(*) FROM foo"));

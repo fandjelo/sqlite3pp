@@ -13,16 +13,15 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        build_type: [Release]
         profile: [linux-gcc, linux-clang, windows-msvc]
-        exclude:
-          - os: windows-latest
-            profile: linux-gcc
-          - os: windows-latest
-            profile: linux-clang
-          - os: ubuntu-latest
-            profile: windows-msvc
+        build_type: [Release]
+        include:
+          - profile: linux-gcc
+            os: ubuntu-latest
+          - profile: linux-clang
+            os: ubuntu-latest
+          - profile: windows-msvc
+            os: windows-latest
 
     steps:
     - uses: actions/checkout@v4
